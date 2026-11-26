@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 
-DB_HOST, DB_USER, DB_PASSWORD, DB_NAME = "localhost","root","ikigai123","dental_db"
+DB_HOST, DB_USER, DB_PASSWORD, DB_NAME = "localhost","root","YOUR_MYSQL_PASSWORD","dental_db"
 
 def connection(include_db=True):
     try:
