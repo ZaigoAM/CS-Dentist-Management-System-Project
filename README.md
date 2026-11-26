@@ -19,7 +19,7 @@ step 3: Install dependencies
 python -m pip install -r requirements.txt
 
 step 4: Configure the database
-Chance the "your_password" and other credentials to whatever is your settings
+Chance the "your_password" and other credentials to whatever is your settings, inside database.py
 
 step 5: RUN!
 
