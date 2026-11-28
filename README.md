@@ -9,8 +9,14 @@ MySQL credentials with database creation permissions
 step 1: Clone the repository
 
 step 2: Create a virtual environment
-python -m venv .venv
+Mac:
+    python3 -m venv .venv
+    source .venv/bin/activate
 
+Windows:
+    python -m venv .venv
+    .venv\Scripts\activate
+    
 activation:
 mac: source .venv/bin/activate
 windows: .venv\Scripts\activate
@@ -19,9 +25,30 @@ step 3: Install dependencies
 python -m pip install -r requirements.txt
 
 step 4: Configure the database
-Chance the "your_password" and other credentials to whatever is your settings, inside database.py
+Open database.py and edit line 4:
+    DB_HOST, DB_USER, DB_PASSWORD, DB_NAME = "localhost", "root", "YOUR_PASSWORD", "dental_db"
+Replace YOUR_PASSWORD with your local MySQL root password. Leave DB_NAME as is;
+init() creates the database and tables automatically on first run.
 
-step 5: RUN!
+step 5: RUN
+cd Project
+python main.py
+
+you should see "Database and Tables successfully initialized." then the main menu screen.
+
+
+
+Troubleshooting:
+"No module named 'PyQt5'": the virtual environment is not activated. Run the
+  activate command from Step 2 in the same terminal you're using.
+"Could not find the Qt platform plugin 'cocoa'": run this before python main.py:
+      export QT_QPA_PLATFORM_PLUGIN_PATH=$(python -c 'import PyQt5, os; print(os.path.join(os.path.dirname(PyQt5.__file__), "Qt5", "plugins"))')
+"Database Error" on every button: MySQL is not running, or the password in
+  database.py is wrong. Confirm MySQL is running and the credentials match.
+"ModuleNotFoundError: patients_ui": you ran main.py from the wrong folder.
+  cd into Project/ first.
+
+
 
 Author:
 Adivesh Mishra
