@@ -2,18 +2,25 @@ import sys
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QGroupBox,
     QLineEdit, QComboBox, QSpinBox, QPushButton, QTableWidget,
-    QTableWidgetItem, QHeaderView, QMessageBox
+    QTableWidgetItem, QHeaderView, QMessageBox, QTimer
 )
 from PyQt5.QtCore import Qt
 import database
-
 
 class PatientWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.selected_patient_id = None
+
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.setInterval(250)
+        self.search_timer.timeout.connect(self.load_patients)
+
         self.init_ui()
         self.load_patients()
+
+
 
     def init_ui(self):
         main_layout = QHBoxLayout(self)
@@ -70,7 +77,6 @@ class PatientWidget(QWidget):
 
         self.search_entry = QLineEdit()
         self.search_entry.setPlaceholderText("Search by name or phone...")
-        self.search_entry.textChanged.connect(self.load_patients)
         table_layout.addWidget(self.search_entry)
 
         self.table = QTableWidget()
@@ -84,6 +90,9 @@ class PatientWidget(QWidget):
         table_layout.addWidget(self.table)
         table_group.setLayout(table_layout)
         main_layout.addWidget(table_group, 2)
+
+
+        self.search_entry.textChanged.connect(self.search_timer.start)
 
     def load_patients(self):
         search_query = self.search_entry.text().strip()
@@ -106,7 +115,7 @@ class PatientWidget(QWidget):
             return
 
         row_idx = self.table.currentRow()
-        self.selected_patient_id = self.table.item(row_idx, 0).text()
+        self.selected_patient_id = int(self.table.item(row_idx, 0).text())
 
         self.name_entry.setText(self.table.item(row_idx, 1).text())
 
@@ -149,7 +158,7 @@ class PatientWidget(QWidget):
             QMessageBox.critical(self, "Database Error", "Failed to add patient to MySQL database.")
 
     def update_patient(self):
-        if not self.selected_patient_id:
+        if self.selected_patient_id == None:
             QMessageBox.warning(self, "Selection Error", "Please select a patient from the table to update.")
             return
 
@@ -174,7 +183,7 @@ class PatientWidget(QWidget):
             QMessageBox.critical(self, "Database Error", "Failed to update patient record.")
 
     def delete_patient(self):
-        if not self.selected_patient_id:
+        if self.selected_patient_id == None:
             QMessageBox.warning(self, "Selection Error", "Please select a patient to delete.")
             return
 
