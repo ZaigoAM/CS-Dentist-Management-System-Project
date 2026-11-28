@@ -253,9 +253,9 @@ class AppointmentWidget(QWidget):
             'Completed'
         )
         if success:
-            self.load_appointments()
             self.selected_appointment_id = None
             self.selected_appointment = None
+            self.load_appointments()
             QMessageBox.information(self, 'Success', 'Appointment completed')
         else:
             QMessageBox.critical(self, 'Error', 'Failed to complete appointment')
@@ -274,9 +274,9 @@ class AppointmentWidget(QWidget):
             'Cancelled'
         )
         if success:
-            self.load_appointments()
             self.selected_appointment_id = None
             self.selected_appointment = None
+            self.load_appointments()
             QMessageBox.information(self, 'Success', 'Appointment cancelled')
         else:
             QMessageBox.critical(self, 'Error', 'Failed to cancel appointment')        
