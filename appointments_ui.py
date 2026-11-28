@@ -13,15 +13,15 @@ class AppointmentWidget(QWidget):
         self.load_today()
     def init_ui(self):
         mainlayout = QHBoxLayout(self)
-        #Left panels
+
         leftpanel = QGroupBox("Search|Filters")
         leftlayout = QVBoxLayout()
-        #Right return
+
         rightlayout = QVBoxLayout()
-        #Searching now
+
         self.search_entry = QLineEdit()
         self.search_entry.setPlaceholderText('Search by name or phone')
-        #Defining a button to start searches
+
         self.btn_search = QPushButton('Search')
         self.btn_search.clicked.connect(self.search_appointments)
 
@@ -29,7 +29,7 @@ class AppointmentWidget(QWidget):
         leftlayout.addWidget(self.search_entry)
         leftlayout.addWidget(self.btn_search)
         leftlayout.addWidget(QLabel('Dates'))
-        #Quick dates like today, tomorrow and day after tomorrow searches
+
         self.btn_today = QPushButton('Today')
         self.btn_today.clicked.connect(self.load_today)
         self.btn_tomorrow = QPushButton('Tomorrow')
@@ -39,7 +39,7 @@ class AppointmentWidget(QWidget):
         leftlayout.addWidget(self.btn_today)
         leftlayout.addWidget(self.btn_tomorrow)
         leftlayout.addWidget(self.btn_dayafter)
-        #Specific Date search
+
         leftlayout.addWidget(QLabel('Specific Date Search'))
         self.datepick = QDateEdit()
         self.datepick.setCalendarPopup(True)
@@ -49,14 +49,14 @@ class AppointmentWidget(QWidget):
 
         leftlayout.addWidget(self.datepick)
         leftlayout.addWidget(self.btn_date)
-        #Show all appointments, so yo ucan see what's happening
+
         self.btn_all = QPushButton('Show All Appointments')
         self.btn_all.clicked.connect(self.load_all)
         leftlayout.addWidget(self.btn_all)
-        #Culmination of everything we have done for left side, added to a smaller share of the screen
+
         leftpanel.setLayout(leftlayout)
         mainlayout.addWidget(leftpanel, 1)
-        #Now the right side: Appointment table first
+
         tablegroup = QGroupBox('Appointment Results')
         tablelayout = QVBoxLayout()
         self.table = QTableWidget()
@@ -71,32 +71,32 @@ class AppointmentWidget(QWidget):
             'Notes',
             'Status'
         ])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)#Stretch to fit
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)#Rows can be selected
-        self.table.setSelectionMode(QTableWidget.SingleSelection)#Only 1 row can be selected
-        self.table.setEditTriggers(QTableWidget.NoEditTriggers)#No editing the table
-        self.table.itemSelectionChanged.connect(self.on_appointment_select)#Displays at the bottom
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.itemSelectionChanged.connect(self.on_appointment_select)
         tablelayout.addWidget(self.table)
         tablegroup.setLayout(tablelayout)
-        rightlayout.addWidget(tablegroup,2)#The upper right table is now done.
-        #Right bottom panel
+        rightlayout.addWidget(tablegroup,2)
+
         detailgroup = QGroupBox('Selected Appointments')
         detaillayout = QFormLayout()
-        #All the useful details that we can have are displayed
+
         self.detailpatient = QLabel("-")
         self.detailphone = QLabel("-")
         self.detaildate = QLabel("-")
         self.detailtime = QLabel("-")
         self.detailnotes = QLabel("-")
         self.detailstatus = QLabel("-")
-        #Now the layout
+
         detaillayout.addRow('patient', self.detailpatient)
         detaillayout.addRow('phone', self.detailphone)
         detaillayout.addRow('date',self.detaildate)
         detaillayout.addRow('time', self.detailtime)
         detaillayout.addRow('notes', self.detailnotes)
         detaillayout.addRow('status', self.detailstatus)
-        #Now to change appointment and stuff
+
         self.btn_edit = QPushButton('Edit Appointment')
         self.btn_edit.clicked.connect(self.edit_appointment)
         self.btn_complete = QPushButton('Complete Appointment')
@@ -110,9 +110,9 @@ class AppointmentWidget(QWidget):
         detailgroup.setLayout(detaillayout)
         rightlayout.addWidget(detailgroup,1)
         mainlayout.addLayout(rightlayout,2)
-        #The main GUI is done. Now the functions are left
 
-    def load_appointments(self,patient_id=None,appointment_date=None,search=''): #Required for other functions
+
+    def load_appointments(self,patient_id=None,appointment_date=None,search=''):
         appointments = database.fetch_appointment(patient_id=patient_id,appointment_date=appointment_date,search=search)
         self.table.setRowCount(0)
         for row,record in enumerate(appointments):
@@ -121,7 +121,7 @@ class AppointmentWidget(QWidget):
                 item = QTableWidgetItem(str(val))
                 item.setTextAlignment(Qt.AlignCenter)
                 self.table.setItem(row,column,item)
-    #Functions that are needed for specific dates and easy dates
+
     def load_today(self):
         self.load_appointments(appointment_date=date.today())
     def load_tomorrow(self):
@@ -132,7 +132,7 @@ class AppointmentWidget(QWidget):
         selected = self.datepick.date()
         thedate = selected.toPyDate()
         self.load_appointments(appointment_date = thedate)
-    #no need to put anything, database.py already does it
+
     def load_all(self):
         self.load_appointments()
 
@@ -147,7 +147,7 @@ class AppointmentWidget(QWidget):
         
         row = self.table.currentRow()
         self.selected_appointment_id = int(self.table.item(row,0).text())
-        self.selected_appointment = {                       # <-- NEW
+        self.selected_appointment = {
             "date" : self.table.item(row, 4).text(),
             "time" : self.table.item(row, 5).text(),
             "notes" : self.table.item(row, 6).text(),
@@ -159,7 +159,6 @@ class AppointmentWidget(QWidget):
         self.detailtime.setText(self.table.item(row,5).text())
         self.detailnotes.setText(self.table.item(row,6).text())
         self.detailstatus.setText(self.table.item(row,7).text())
-        #This is all 8 rows of the table.
 
     def delete_appointment(self):
         if self.selected_appointment_id is None:
@@ -185,30 +184,27 @@ class AppointmentWidget(QWidget):
         dialog = QDialog(self)
         dialog.setWindowTitle('Edit Appointment')
         layout = QFormLayout(dialog)
-
         newdate = QDateEdit()
         newdate.setCalendarPopup(True)
-        row = self.table.currentRow()
-        date = self.table.item(row,4).text()
         newdate.setDate(QDate.fromString(date, "yyyy-MM-dd"))
-
         newtime = QLineEdit()
-        newtime.setText(self.table.item(row,5).text())
-
         newnote = QTextEdit()
-        newnote.setPlainText(self.table.item(row,6).text())
-
         newstatus = QComboBox()
         newstatus.addItems([
             'Scheduled',
             'Completed',
             'Cancelled',
         ])
-        newstatus.setCurrentText(self.table.item(row,7).text())
         layout.addRow('Date:', newdate)
         layout.addRow('Time:', newtime)
         layout.addRow('Note:', newnote)
         layout.addRow('Status:',newstatus)
+
+        appt = self.selected_appointment
+        newdate.setDate(QDate.fromString(appt["date"], "yyyy-MM-dd"))
+        newtime.setText(appt["time"])
+        newnote.setPlainText(appt["notes"])
+        newstatus.setCurrentText(appt["status"])
 
         btn_save = QPushButton('Save')
         btn_cancel = QPushButton('Cancel')
