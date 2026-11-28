@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 
-DB_HOST, DB_USER, DB_PASSWORD, DB_NAME = "localhost","root","YOUR_MYSQL_PASSWORD","dental_db"
+DB_HOST, DB_USER, DB_PASSWORD, DB_NAME = "localhost","root","ikigai123","dental_db"
 
 def connection(include_db=True):
     try:
@@ -150,6 +150,7 @@ def add_appointment(patient_id, date, time, notes = "", status = 'Scheduled'): #
 
 def fetch_appointment(patient_id=None, appointment_date=None, search=""): #fetch an appointment using the patient id, date or a search command
     con = connection()
+    appointments = []
     if con and con.is_connected():
         cursor = con.cursor()
 
