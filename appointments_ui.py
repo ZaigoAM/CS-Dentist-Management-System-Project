@@ -1,4 +1,5 @@
 import sys
+import datetime
 from datetime import date, timedelta
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QDate
@@ -240,10 +241,11 @@ class AppointmentWidget(QWidget):
             return
 
         row_data = self.selected_appointment
+        db_date = datetime.strptime(row_data["date"], "%Y-%m-%d").date()
 
         success = database.update_appointment(
             self.selected_appointment_id,
-            row_data["date"],
+            db_date,
             row_data["time"],
             row_data["notes"],
             'Completed'
@@ -261,10 +263,11 @@ class AppointmentWidget(QWidget):
             QMessageBox.warning(self, 'Selection Error', 'Please select an appointment')
             return
         row_data = self.selected_appointment
+        db_date = datetime.strptime(row_data["date"], "%Y-%m-%d").date()
 
         success = database.update_appointment(
             self.selected_appointment_id,
-            row_data["date"],
+            db_date,
             row_data["time"],
             row_data["notes"],
             'Cancelled'
