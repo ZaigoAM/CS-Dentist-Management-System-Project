@@ -8,6 +8,7 @@ class AppointmentWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.selected_appointment_id = None
+        self.selected_appointment = None
         self.init_ui()
         self.load_today()
     def init_ui(self):
@@ -18,14 +19,14 @@ class AppointmentWidget(QWidget):
         #Right return
         rightlayout = QVBoxLayout()
         #Searching now
-        self.searchentry = QLineEdit()
-        self.searchentry.setPlaceholderText('Search by name or phone')
+        self.search_entry = QLineEdit()
+        self.search_entry.setPlaceholderText('Search by name or phone')
         #Defining a button to start searches
         self.btn_search = QPushButton('Search')
         self.btn_search.clicked.connect(self.search_appointments)
 
         leftlayout.addWidget(QLabel('Search for Patient'))
-        leftlayout.addWidget(self.searchentry)
+        leftlayout.addWidget(self.search_entry)
         leftlayout.addWidget(self.btn_search)
         leftlayout.addWidget(QLabel('Dates'))
         #Quick dates like today, tomorrow and day after tomorrow searches
@@ -143,30 +144,39 @@ class AppointmentWidget(QWidget):
         selected = self.table.selectedItems()
         if not selected:
             return
+        
         row = self.table.currentRow()
         self.selected_appointment_id = int(self.table.item(row,0).text())
+        self.selected_appointment = {                       # <-- NEW
+            "date" : self.table.item(row, 4).text(),
+            "time" : self.table.item(row, 5).text(),
+            "notes" : self.table.item(row, 6).text(),
+            "status" : self.table.item(row, 7).text(),
+        }
         self.detailpatient.setText(self.table.item(row,2).text())
         self.detailphone.setText(self.table.item(row,3).text())
         self.detaildate.setText(self.table.item(row,4).text())
         self.detailtime.setText(self.table.item(row,5).text())
         self.detailnotes.setText(self.table.item(row,6).text())
         self.detailstatus.setText(self.table.item(row,7).text())
+        #This is all 8 rows of the table.
 
     def delete_appointment(self):
         if self.selected_appointment_id is None:
             QMessageBox.warning(self,'Selection Error','Please select an appointment')
             return
         confirm = QMessageBox.question(self,'Confirm Delete','Are you sure you want to delete this appointment?',
-                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if confirm != QMessageBox.Yes:
             return
         success = database.delete_appointment(self.selected_appointment_id)
         if success:
             self.selected_appointment_id = None
-            self.load_today()
+            self.load_appointments()
             QMessageBox.information(self,'Success','Appointment deleted successfully')
         else:
             QMessageBox.critical(self,'Error','Failed to delete appointment')
+
 
     def edit_appointment(self):
         if self.selected_appointment_id is None:
@@ -180,8 +190,7 @@ class AppointmentWidget(QWidget):
         newdate.setCalendarPopup(True)
         row = self.table.currentRow()
         date = self.table.item(row,4).text()
-        year,month,day = map(int, date.split('-'))
-        newdate.setDate(QDate(year,month,day))
+        newdate.setDate(QDate.fromString(date, "yyyy-MM-dd"))
 
         newtime = QLineEdit()
         newtime.setText(self.table.item(row,5).text())
@@ -233,16 +242,20 @@ class AppointmentWidget(QWidget):
         if self.selected_appointment_id == None:
             QMessageBox.warning(self, 'Selection Error', 'Please select an appointment')
             return
+
+        row_data = self.selected_appointment
+
         success = database.update_appointment(
             self.selected_appointment_id,
-            self.detaildate.text(),
-            self.detailtime.text(),
-            self.detailnotes.text(),
+            row_data["date"],
+            row_data["time"],
+            row_data["notes"],
             'Completed'
         )
         if success:
             self.load_appointments()
             self.selected_appointment_id = None
+            self.selected_appointment = None
             QMessageBox.information(self, 'Success', 'Appointment completed')
         else:
             QMessageBox.critical(self, 'Error', 'Failed to complete appointment')
@@ -251,16 +264,19 @@ class AppointmentWidget(QWidget):
         if self.selected_appointment_id == None:
             QMessageBox.warning(self, 'Selection Error', 'Please select an appointment')
             return
+        row_data = self.selected_appointment
+
         success = database.update_appointment(
             self.selected_appointment_id,
-            self.detaildate.text(),
-            self.detailtime.text(),
-            self.detailnotes.text(),
+            row_data["date"],
+            row_data["time"],
+            row_data["notes"],
             'Cancelled'
         )
         if success:
             self.load_appointments()
             self.selected_appointment_id = None
+            self.selected_appointment = None
             QMessageBox.information(self, 'Success', 'Appointment cancelled')
         else:
             QMessageBox.critical(self, 'Error', 'Failed to cancel appointment')        
